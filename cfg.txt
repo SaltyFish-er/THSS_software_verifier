@@ -1,0 +1,128 @@
+[predicate] sorted
+(
+	(arr$1: int[]),
+	(low$1: int),
+	(high$1: int),
+)
+	:= (\forall (sorted_a$1: int), (sorted_b$1: int). ((((low$1 <= sorted_a$1) && (sorted_a$1 <= sorted_b$1)) && (sorted_b$1 <= high$1)) ==> (arr$1[sorted_a$1] <= arr$1[sorted_b$1])))
+[function] (\result: ()) InsertionSort 
+(
+	(a_0$1: int[]),
+	(n$1: int),
+)
+_PRECOND#1:
+	successors: _BASIC#1
+	requires (\length(a_0$1) > (n$1 - 1))
+	requires (n$1 >= 1)
+	decreases (
+	(n$1 + 1)
+	(n$1 + 1)
+)
+
+_BASIC#1:
+	predecessors: _PRECOND#1
+	successors: _LOOPHEAD#1
+	(i$1: int) = 1
+
+_LOOPHEAD#1:
+	predecessors: _BASIC#1 _BASIC#12
+	successors: _BASIC#2 _BASIC#3
+	loop invariant (n$1 >= 1)
+	loop invariant (\length(a_0$1) > (n$1 - 1))
+	loop invariant sorted(a_0$1, 0, (i$1 - 1))
+	loop invariant ((1 <= i$1) && (i$1 <= (n$1 + 1)))
+	loop variant (
+	((n$1 - i$1) + 1)
+	(n$1 + 1)
+
+	(_cond$1: bool) = (i$1 < n$1)
+
+_BASIC#2:
+	predecessors: _LOOPHEAD#1
+	successors: _LOOPHEAD#2
+	assume _cond$1
+	@assert (0 <= i$1)
+	@assert (i$1 < \length(a_0$1))
+	(t$1: int) = a_0$1[i$1]
+	(j$1: int) = (i$1 - 1)
+
+_BASIC#3:
+	predecessors: _LOOPHEAD#1
+	successors: _BASIC#4
+	assume !_cond$1
+
+_BASIC#4:
+	predecessors: _BASIC#3
+	successors: _POSTCOND#1
+	@assert sorted(a_0$1, 0, (n$1 - 1))
+
+_LOOPHEAD#2:
+	predecessors: _BASIC#2 _BASIC#11
+	successors: _BASIC#5 _BASIC#6
+	loop invariant (n$1 >= 1)
+	loop invariant (\length(a_0$1) > (n$1 - 1))
+	loop invariant sorted(a_0$1, 0, (i$1 - 1))
+	loop invariant (\forall (ix$1: int). (((j$1 < ix$1) && (ix$1 < i$1)) ==> (a_0$1[ix$1] > t$1)))
+	loop invariant ((j$1 < (i$1 - 1)) ==> sorted(a_0$1, 0, i$1))
+	loop invariant (((-1 <= j$1) && (j$1 < i$1)) && (i$1 < n$1))
+	loop invariant (1 <= i$1)
+	loop variant (
+	((n$1 - i$1) + 1)
+	(j$1 + 1)
+
+	(_cond$2: bool) = (j$1 >= 0)
+
+_BASIC#5:
+	predecessors: _LOOPHEAD#2
+	successors: _BASIC#8 _BASIC#9
+	assume _cond$2
+	@assert (0 <= j$1)
+	@assert (j$1 < \length(a_0$1))
+	(_cond$3: bool) = (a_0$1[j$1] <= t$1)
+
+_BASIC#6:
+	predecessors: _LOOPHEAD#2
+	successors: _BASIC#7
+	assume !_cond$2
+
+_BASIC#7:
+	predecessors: _BASIC#6 _BASIC#8
+	successors: _BASIC#12
+	(_sub$2: int) = (j$1 + 1)
+	@assert (0 <= _sub$2)
+	@assert (_sub$2 < \length(a_0$1))
+	(a_0$1[_sub$2]: int) := t$1
+
+_BASIC#8:
+	predecessors: _BASIC#5
+	successors: _BASIC#7
+	assume _cond$3
+
+_BASIC#9:
+	predecessors: _BASIC#5
+	successors: _BASIC#10
+	assume !_cond$3
+
+_BASIC#10:
+	predecessors: _BASIC#9
+	successors: _BASIC#11
+	(_sub$1: int) = (j$1 + 1)
+	@assert (0 <= _sub$1)
+	@assert (_sub$1 < \length(a_0$1))
+	@assert (0 <= j$1)
+	@assert (j$1 < \length(a_0$1))
+	(a_0$1[_sub$1]: int) := a_0$1[j$1]
+
+_BASIC#11:
+	predecessors: _BASIC#10
+	successors: _LOOPHEAD#2
+	(j$1: int) = (j$1 - 1)
+
+_BASIC#12:
+	predecessors: _BASIC#7
+	successors: _LOOPHEAD#1
+	(i$1: int) = (i$1 + 1)
+
+_POSTCOND#1:
+	predecessors: _BASIC#4
+
